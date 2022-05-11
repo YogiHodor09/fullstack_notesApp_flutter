@@ -1,7 +1,6 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:notes_app/bloc/user/userRepository.dart';
 import 'package:notes_app/model/notes/NotesResponse.dart';
-import 'package:notes_app/model/login/loginModel.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:notes_app/bloc/notes/notesRepository.dart';

@@ -4,7 +4,7 @@ import 'package:notes_app/services/APIProvider.dart';
 class NotesRepository {
   APIProvider apiProvider = APIProvider();
 
-  void getNotes() {
+  Future<NotesResponse> getNotes() {
     return apiProvider.getNotes();
   }
 }

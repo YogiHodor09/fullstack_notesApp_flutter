@@ -5,59 +5,77 @@ import 'package:dio/dio.dart';
 import 'package:notes_app/model/notes/NotesResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:notes_app/model/login/loginModel.dart';
-import 'package:notes_app/model/register/registerModel.dart';
 import 'package:notes_app/model/storageItem/storageItem.dart';
+import 'package:notes_app/model/userAuthResponse/UserAuthResponse.dart';
 import 'package:notes_app/services/storageService.dart';
 import 'package:notes_app/view/homescreen.dart';
 
 import '../utils/styles.dart';
+import 'interceptor/LoggingInterceptor.dart';
 
 class APIProvider {
   var baseAppUrl = 'http://192.168.1.176:8083';
   final _storageService = StorageService();
+  var notesResponse = NotesResponse(notesData: [], success: false);
+  Dio _dio = Dio();
 
-  void getNotes() async {
-    var notesList = [];
+  APIProvider() {
+    BaseOptions options =
+        BaseOptions(receiveTimeout: 5000, connectTimeout: 5000);
+    _dio = Dio(options);
+    _dio.interceptors.add(LoggingInterceptor());
+  }
+
+  // register user
+  Future<UserAuthResponse> registerUser(
+      var userName, var password, BuildContext context) async {
+    var registerModel = UserAuthResponse();
+    var body = {
+      "username": userName,
+      "password": password,
+    };
+
     try {
-      debugPrint("entering try ...");
-      final response = await http.get(Uri.parse("$baseAppUrl/notes"));
+      _dio.options.headers['Content-Type'] = 'application/json';
+      final response =
+          await _dio.post("$baseAppUrl/users/register", data: body);
       if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        notesList = json.decode(response.body);
-        debugPrint("getting data :: $notesList");
+        registerModel = UserAuthResponse.fromJson(response.data);
+        _storageService.deleteAllSecureData();
+        _storageService.storeAccessToken(registerModel.userData.toString());
+        WidgetProvider().showSnackBar('User Registered !!', context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+        return registerModel;
       } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
-        throw Exception('Failed to load album');
+        debugPrint('Failed to register the user');
       }
     } catch (e) {
-      debugPrint("Catches exception :: ${e.toString()}");
+      debugPrint('Register Exception :: ${e.toString()}');
     }
+
+    return registerModel;
   }
 
   // login user
-  Future<LoginModel> loginUser(
+  Future<UserAuthResponse> loginUser(
       var userName, var password, BuildContext context) async {
-    var loginModel = LoginModel();
+    var loginModel = UserAuthResponse();
     var body = {
       "username": userName,
       "password": password,
     };
     var token = await _storageService.readAccessToken();
-    var header = {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token"
-    };
     try {
-      final response = await http.post(Uri.parse("$baseAppUrl/users/login"),
-          body: json.encode(body), headers: header);
+      _dio.options.headers['Content-Type'] = 'application/json';
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+      final response = await _dio.post("$baseAppUrl/users/login", data: body);
       if (response.statusCode == 200) {
-        loginModel = LoginModel.fromJson(
-            jsonDecode(response.body) as Map<String, dynamic>);
+        loginModel = UserAuthResponse.fromJson(response.data);
         _storageService.deleteAllSecureData();
-        _storageService.storeAccessToken(loginModel.data.toString());
+        _storageService.storeAccessToken(loginModel.userData.toString());
         WidgetProvider().showSnackBar('User Logged In !!', context);
         Navigator.push(
           context,
@@ -73,37 +91,16 @@ class APIProvider {
     return loginModel;
   }
 
-  // register user
-  Future<RegisterModel> registerUser(
-      var userName, var password, BuildContext context) async {
-    var registerModel = RegisterModel();
-    var body = {
-      "username": userName,
-      "password": password,
-    };
-    var header = {"Content-Type": "application/json"};
-
+  // getting user notes ..
+  Future<NotesResponse> getNotes() async {
     try {
-      final response = await http.post(Uri.parse("$baseAppUrl/users/register"),
-          body: json.encode(body), headers: header);
-      if (response.statusCode == 200) {
-        registerModel = RegisterModel.fromJson(
-            jsonDecode(response.body) as Map<String, dynamic>);
-        _storageService.deleteAllSecureData();
-        _storageService.storeAccessToken(registerModel.data.toString());
-        WidgetProvider().showSnackBar('User Registered !!', context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-        return registerModel;
-      } else {
-        debugPrint('Failed to register the user');
-      }
-    } catch (e) {
-      debugPrint('Register Exception :: ${e.toString()}');
+      debugPrint("Entering try ...");
+      Response response = await _dio.get('$baseAppUrl/notes');
+      notesResponse = NotesResponse.fromJson(response.data);
+      debugPrint("Getting response :: ${notesResponse.notesData}");
+    } catch (e, stackTrace) {
+      debugPrint("Exception occurred: $e stackTrace: $stackTrace");
     }
-
-    return registerModel;
+    return notesResponse;
   }
 }

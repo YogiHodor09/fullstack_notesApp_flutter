@@ -1,29 +1,44 @@
-// To parse this JSON data, do
-//
-//     final notesModel = notesModelFromJson(jsonString);
+class NotesResponse {
+  List<NotesData>? notesData;
+  bool? success;
 
-import 'dart:convert';
+  NotesResponse({this.notesData, this.success});
 
-List<NotesModel> notesModelFromJson(String str) => List<NotesModel>.from(json.decode(str).map((x) => NotesModel.fromJson(x)));
+  NotesResponse.fromJson(Map<String, dynamic> json) {
+    if (json['notesData'] != null) {
+      notesData = <NotesData>[];
+      json['notesData'].forEach((v) {
+        notesData!.add(NotesData.fromJson(v));
+      });
+    }
+    success = json['success'];
+  }
 
-String notesModelToJson(List<NotesModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (notesData != null) {
+      data['notesData'] = notesData!.map((v) => v.toJson()).toList();
+    }
+    data['success'] = success;
+    return data;
+  }
+}
 
-class NotesModel {
-  NotesModel({
-    required this.id,
-    required this.note,
-  });
+class NotesData {
+  int? id;
+  String? note;
 
-  int id;
-  String note;
+  NotesData({this.id, this.note});
 
-  factory NotesModel.fromJson(Map<String, dynamic> json) => NotesModel(
-    id: json["id"],
-    note: json["note"],
-  );
+  NotesData.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    note = json['note'];
+  }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "note": note,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['note'] = note;
+    return data;
+  }
 }

@@ -3,6 +3,8 @@ import 'package:notes_app/model/notes/NotesResponse.dart';
 
 import '../bloc/notes/notesBloc.dart';
 
+var notesResponse = NotesResponse(notesData: [], success: false);
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -30,20 +32,52 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    getNotesData();
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      notesBloc.getNotes();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildUserWidget();
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('HomeScreen'),
+          centerTitle: true,
+          elevation: 2.0,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _buildNotesWidget(),
+        ));
   }
+}
+
+Widget _buildNotesWidget() {
+  return StreamBuilder<NotesResponse>(
+    stream: notesBloc.subject.stream,
+    builder: (context, AsyncSnapshot<NotesResponse> snapshot) {
+      if (snapshot.hasData) {
+        if (snapshot.data == null) {
+          return _buildErrorWidget(snapshot.data.toString());
+        }
+        return _buildUserWidget(snapshot.data);
+      } else if (snapshot.hasError) {
+        return _buildErrorWidget(snapshot.error.toString());
+      } else {
+        return _buildLoadingWidget();
+      }
+    },
+  );
 }
 
 Widget _buildLoadingWidget() {
   return Center(
       child: Column(
     mainAxisAlignment: MainAxisAlignment.center,
-    children: const [Text("Loading Notes ..."), CircularProgressIndicator()],
+    children: const [
+      Text("Loading data from API..."),
+      CircularProgressIndicator()
+    ],
   ));
 }
 
@@ -57,15 +91,12 @@ Widget _buildErrorWidget(String error) {
   ));
 }
 
-Widget _buildUserWidget() {
-  return Container();
-}
-
-getNotesData() async {
-  try {
-    var notesData = await notesBloc.getNotes();
-    debugPrint('Notes data :: $notesData');
-  } catch (e) {
-    debugPrint('Exception :: ${e.toString()}');
-  }
+Widget _buildUserWidget(var data) {
+  return Center(
+      child: Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: const [
+      Text("User widget"),
+    ],
+  ));
 }
