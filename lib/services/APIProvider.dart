@@ -98,6 +98,10 @@ class APIProvider {
       Response response = await _dio.get('$baseAppUrl/notes');
       notesResponse = NotesResponse.fromJson(response.data);
       debugPrint("Getting response :: ${notesResponse.notesData}");
+      Map mapData = {
+        for (var e in notesResponse.notesData!) e.id.toString(): e.note
+      };
+      debugPrint("Getting map data :: $mapData");
     } catch (e, stackTrace) {
       debugPrint("Exception occurred: $e stackTrace: $stackTrace");
     }

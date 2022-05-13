@@ -6,7 +6,8 @@ import 'package:notes_app/bloc/notes/notesRepository.dart';
 
 class NotesBloc {
   final notesRepository = NotesRepository();
-  final BehaviorSubject<NotesResponse> _subject = BehaviorSubject<NotesResponse>();
+  final BehaviorSubject<NotesResponse> _subject =
+      BehaviorSubject<NotesResponse>();
 
   getNotes() async {
     var notesResponse = await notesRepository.getNotes();

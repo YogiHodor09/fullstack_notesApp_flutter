@@ -134,7 +134,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
     var password = _passwordController.text.toString();
     debugPrint('registering user ..');
     try {
-      userBloc.registerUser(userName, password,context);
+      userBloc.registerUser(userName, password, context);
     } catch (e) {
       debugPrint(e.toString());
     }
