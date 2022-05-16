@@ -1,11 +1,4 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:notes_app/bloc/notes/notesBloc.dart';
-import 'package:notes_app/model/notes/NotesResponse.dart';
-import 'package:notes_app/services/APIProvider.dart';
-import 'package:notes_app/view/RegisterScreen.dart';
 import 'package:notes_app/view/loginScreen.dart';
 
 void main() {
@@ -37,7 +30,6 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
-
   @override
   Widget build(BuildContext context) {
     return const Scaffold(

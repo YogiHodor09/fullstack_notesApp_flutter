@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-
-import 'package:notes_app/model/notes/NotesResponse.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:notes_app/model/storageItem/storageItem.dart';
+import 'package:notes_app/model/notes/NotesResponse.dart';
 import 'package:notes_app/model/userAuthResponse/UserAuthResponse.dart';
+import 'package:notes_app/services/handleDioError.dart';
 import 'package:notes_app/services/storageService.dart';
 import 'package:notes_app/view/homescreen.dart';
 
@@ -93,17 +89,19 @@ class APIProvider {
 
   // getting user notes ..
   Future<NotesResponse> getNotes() async {
+    var mapData = <dynamic, dynamic>{};
     try {
       debugPrint("Entering try ...");
       Response response = await _dio.get('$baseAppUrl/notes');
       notesResponse = NotesResponse.fromJson(response.data);
       debugPrint("Getting response :: ${notesResponse.notesData}");
-      Map mapData = {
+      mapData = {
         for (var e in notesResponse.notesData!) e.id.toString(): e.note
       };
       debugPrint("Getting map data :: $mapData");
     } catch (e, stackTrace) {
       debugPrint("Exception occurred: $e stackTrace: $stackTrace");
+      HandleDioError().handleError(e);
     }
     return notesResponse;
   }

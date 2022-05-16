@@ -4,8 +4,6 @@ import 'package:notes_app/bloc/user/userBloc.dart';
 import 'package:notes_app/utils/styles.dart';
 import 'package:notes_app/view/loginScreen.dart';
 
-import '../bloc/notes/notesBloc.dart';
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
 

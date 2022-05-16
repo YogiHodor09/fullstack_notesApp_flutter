@@ -60,7 +60,7 @@ Widget _buildNotesWidget() {
         if (snapshot.data == null) {
           return _buildErrorWidget(snapshot.data.toString());
         }
-        return _buildUserWidget(snapshot.data);
+        return _buildUserWidget(snapshot.data!);
       } else if (snapshot.hasError) {
         return _buildErrorWidget(snapshot.error.toString());
       } else {
@@ -91,12 +91,17 @@ Widget _buildErrorWidget(String error) {
   ));
 }
 
-Widget _buildUserWidget(var data) {
-  return Center(
-      child: Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: const [
-      Text("User widget"),
-    ],
-  ));
+Widget _buildUserWidget(NotesResponse data) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        physics: const BouncingScrollPhysics(),
+        itemBuilder: (context, index) {
+          return Column(
+            children: [Text('Notes Data :: ${data.notesData![index].note}')],
+          );
+        },
+        itemCount: data.notesData?.length),
+  );
 }

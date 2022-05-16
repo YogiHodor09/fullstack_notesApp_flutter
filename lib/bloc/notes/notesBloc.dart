@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/bloc/notes/notesRepository.dart';
 import 'package:notes_app/model/notes/NotesResponse.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'package:notes_app/bloc/notes/notesRepository.dart';
 
 class NotesBloc {
   final notesRepository = NotesRepository();
